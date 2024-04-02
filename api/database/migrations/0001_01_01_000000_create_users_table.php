@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->
             $table->string('first_name');
             $table->string('last_name');
             $table->string('email')->unique();
@@ -23,6 +22,8 @@ return new class extends Migration
             $table->decimal('weight')->nullable();
             $table->integer('age')->nullable();
             $table->boolean('lock')->default(false);
+            $table->boolean('is_admin')->default(false);
+            $table->boolean('is_owner')->default(false);
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();

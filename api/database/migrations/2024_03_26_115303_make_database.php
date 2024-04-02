@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->string('data');
-            $table->rememberToken();
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users');
@@ -25,7 +24,6 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->decimal('user_weight');
             $table->date('date');
-            $table->rememberToken();
             $table->timestamps();
             
             $table->foreign('user_id')->references('id')->on('users');
@@ -34,7 +32,6 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->integer('calories_per_km');
-            $table->rememberToken();
             $table->timestamps();
         });
         Schema::create('dates_activities', function (Blueprint $table) {
@@ -42,7 +39,6 @@ return new class extends Migration
             $table->unsignedBigInteger('date_id');
             $table->unsignedBigInteger('activity_id');
             $table->decimal('kilometers');
-            $table->rememberToken();
             $table->timestamps();
 
             $table->foreign('date_id')->references('id')->on('dates');
@@ -55,7 +51,6 @@ return new class extends Migration
             $table->string('brand');
             $table->integer('calories_per_gram');
             $table->string('nutrition_grade');
-            $table->rememberToken();
             $table->timestamps();
         });
 
@@ -70,7 +65,6 @@ return new class extends Migration
             $table->decimal('fibres');
             $table->decimal('protein');
             $table->decimal('salt');
-            $table->rememberToken();
             $table->timestamps();
 
             $table->foreign('meal_id')->references('id')->on('meals');
@@ -81,24 +75,11 @@ return new class extends Migration
             $table->unsignedBigInteger('meal_id');
             $table->decimal('amount');
             $table->integer('grams');
-            $table->rememberToken();
             $table->timestamps();
 
             $table->foreign('date_id')->references('id')->on('dates');
             $table->foreign('meal_id')->references('id')->on('meals');
-        });
-        Schema::create('meals_activities', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('date_id');
-            $table->unsignedBigInteger('activity_id');
-            $table->decimal('kilometers');
-            $table->rememberToken();
-            $table->timestamps();
-
-            $table->foreign('date_id')->references('id')->on('dates');
-            $table->foreign('activity_id')->references('id')->on('activities');
-        });
-        
+        });   
     }
 
     /**
