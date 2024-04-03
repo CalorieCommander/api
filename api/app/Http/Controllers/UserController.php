@@ -62,4 +62,8 @@ class UserController extends \Illuminate\Routing\Controller
     {
         return response()->json(auth()->user());
     }
+    public function update_user_data()
+    {
+        return response()->json(auth()->user());
+    }
 }
