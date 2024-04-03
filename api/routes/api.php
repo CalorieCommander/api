@@ -17,14 +17,14 @@ Route::group([
 });
 
 Route::group([
-
     'middleware' => 'api'
 ], function ($router) {
     Route::get('user', [UserController::class, 'user'])->name('user');
     Route::group([
         'prefix' => 'user'
     ], function ($router) {
-        Route::get('update', [UserController::class, 'user'])->name('user');
+        Route::middleware('api')->post('update', [UserController::class, 'update_user_data'])->name('update');
+        Route::middleware('api')->post('update_password', [UserController::class, 'update_user_password'])->name('update_password');
     });
 });
 

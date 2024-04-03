@@ -12,6 +12,10 @@ use Illuminate\Support\Str;
 
 class UserController extends \Illuminate\Routing\Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+    }
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -62,8 +66,28 @@ class UserController extends \Illuminate\Routing\Controller
     {
         return response()->json(auth()->user());
     }
-    public function update_user_data()
+    public function update_user_data(Request $request)
     {
-        return response()->json(auth()->user());
+        $user = auth()->user();
+        $user->gender = $request->gender;
+        $user->weight = $request->weight;
+        $user->height = $request->height;
+        $user->age = $request->age;
+        #height (m) squared divided by weight
+        $user->bmi = number_format(($request->weight / (($request->height / 100) * ($request->height / 100))), 0,);
+        $user->update();
+        return response()->json(['message' => 'Successfully updated account', 'user' => $user]);
+    }
+    public function update_user_password(Request $request)
+    {
+        $user = auth()->user();
+        if($request->password !== $request->password_confirmation)
+        {
+            return response()->json(['error' => 'Passwords do not match.'], 401);
+        }
+        auth()->logout();
+        $user->password = Hash::make($request->password);
+        $user->update();
+        return response()->json(['message' => 'Successfully updated password. Please login again.', 'user' => $user]);
     }
 }

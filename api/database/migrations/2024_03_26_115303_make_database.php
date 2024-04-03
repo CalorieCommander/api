@@ -19,6 +19,16 @@ return new class extends Migration
 
             $table->foreign('user_id')->references('id')->on('users');
         });
+        Schema::create('goals', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('user_id');
+            $table->decimal('goal_weight')->nullable();
+            $table->date('date')->nullable();
+            $table->integer('daily_calories')->default(2000);
+            $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users');
+        });
         Schema::create('dates', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
@@ -90,6 +100,9 @@ return new class extends Migration
         Schema::table('histories', function (Blueprint $table) {
             $table->dropForeign('histories_user_id_foreign');
         });
+        Schema::table('goals', function (Blueprint $table) {
+            $table->dropForeign('goals_user_id_foreign');
+        });
         Schema::table('dates_activities', function (Blueprint $table) {
             $table->dropForeign('dates_activities_date_id_foreign');
             $table->dropForeign('dates_activities_activity_id_foreign');
@@ -105,6 +118,7 @@ return new class extends Migration
             $table->dropForeign('nutrients_meal_id_foreign');
         });
         Schema::dropIfExists('histories');
+        Schema::dropIfExists('goals');
         Schema::dropIfExists('dates_activities');
         Schema::dropIfExists('dates_meals');
         Schema::dropIfExists('nutrients');

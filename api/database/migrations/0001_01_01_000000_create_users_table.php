@@ -21,6 +21,7 @@ return new class extends Migration
             $table->integer('height')->nullable();
             $table->decimal('weight')->nullable();
             $table->integer('age')->nullable();
+            $table->integer('bmi')->nullable();
             $table->boolean('lock')->default(false);
             $table->boolean('is_admin')->default(false);
             $table->boolean('is_owner')->default(false);
