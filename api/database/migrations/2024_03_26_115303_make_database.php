@@ -48,6 +48,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('date_id');
             $table->unsignedBigInteger('activity_id');
+            $table->integer('total_burned_cal');
             $table->decimal('kilometers');
             $table->timestamps();
 
@@ -67,14 +68,7 @@ return new class extends Migration
         Schema::create('nutrients', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('meal_id');
-            $table->decimal('energy');
-            $table->decimal('calories');
-            $table->decimal('carbohydrates');
-            $table->decimal('fats');
-            $table->decimal('sugar');
-            $table->decimal('fibres');
-            $table->decimal('protein');
-            $table->decimal('salt');
+            //hier moet nog meuk komen
             $table->timestamps();
 
             $table->foreign('meal_id')->references('id')->on('meals');
@@ -83,7 +77,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('date_id');
             $table->unsignedBigInteger('meal_id');
-            $table->decimal('amount');
+            $table->integer('calories_total');
             $table->integer('grams');
             $table->timestamps();
 
