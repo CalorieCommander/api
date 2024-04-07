@@ -27,6 +27,6 @@ Route::group([
         Route::middleware('api')->post('update', [UserController::class, 'update_user_data'])->name('update');
         Route::middleware('api')->post('update_password', [UserController::class, 'update_user_password'])->name('update_password');
     });
-        Route::middleware('api')->get('date/{date}', [DateController::class, 'date'])->name('date');
+    Route::middleware('api')->get('date', [DateController::class, 'date'])->name('date');
 });
 

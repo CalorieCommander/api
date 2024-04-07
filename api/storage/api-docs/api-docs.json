@@ -1,0 +1,28 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "CalorieCommander",
+        "contact": {
+            "email": "knhouwerzijl@gmail.com"
+        },
+        "version": "1.0"
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8000/api/",
+            "description": "CalorieCommander"
+        }
+    ],
+    "paths": {
+        "/auth/register": {
+            "post": {
+                "operationId": "c0d615b1e4523cab480069cea2c590dd",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            }
+        }
+    }
+}

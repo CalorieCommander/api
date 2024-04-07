@@ -4,12 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-
 class UserController extends \Illuminate\Routing\Controller
 {
     public function __construct()
@@ -24,11 +22,10 @@ class UserController extends \Illuminate\Routing\Controller
             'email' => 'required|string|email|max:255',
             'password' => 'required|string|min:6|confirmed',
         ]);
-        if ($validator->fails())
-        {
-            return response(['errors'=>$validator->errors()->all()], 422);
+        if ($validator->fails()) {
+            return response(['errors' => $validator->errors()->all()], 422);
         }
-        $request['password']=Hash::make($request['password']);
+        $request['password'] = Hash::make($request['password']);
         $request['remember_token'] = Str::random(10);
         $user = new User;
         $user->first_name = $request->first_name;
@@ -74,20 +71,43 @@ class UserController extends \Illuminate\Routing\Controller
         $user->height = $request->height;
         $user->age = $request->age;
         #height (m) squared divided by weight
-        $user->bmi = number_format(($request->weight / (($request->height / 100) * ($request->height / 100))), 0,);
+        $user->bmi = number_format(($request->weight / (($request->height / 100) * ($request->height / 100))), 0, );
         $user->update();
         return response()->json(['message' => 'Successfully updated account', 'user' => $user]);
     }
     public function update_user_password(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+        if ($validator->fails()) {
+            return response(['errors' => $validator->errors()->all()], 422);
+        }
         $user = auth()->user();
-        if($request->password !== $request->password_confirmation)
-        {
+        if ($request->password !== $request->password_confirmation) {
             return response()->json(['error' => 'Passwords do not match.'], 401);
         }
         auth()->logout();
         $user->password = Hash::make($request->password);
         $user->update();
         return response()->json(['message' => 'Successfully updated password. Please login again.', 'user' => $user]);
+    }
+    public function add_admin(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'is_admin' =>'required',
+            'user_id' => 'required|exists:users,id',
+        ]);
+        if ($validator->fails()) {
+            return response(['errors' => $validator->errors()->all()], 422);
+        }
+        if(auth()->user()->is_admin !== 1)
+        {
+            
+        }
+        $user = User::where('id', $request->user_id)->first();
+        $user->is_admin = $request->is_admin;
+        $user->update();
+        return response()->json(['message' => 'Succesfully updated admin permissions.', 'user' => $user]);
     }
 }

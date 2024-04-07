@@ -8,13 +8,16 @@ use App\Models\Date_activity;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-
-class DateController extends Controller
+class DateController  extends \Illuminate\Routing\Controller
 {
-    public function date($date)
+    public function __construct()
     {
-        $date = Carbon::parse($date);
-        $dates = Date::where(auth()->user()->id)->where('date', $date)->with('dates_activities', 'dates_meals', 'meals', 'nutritions', 'activities')->get();
+        $this->middleware('auth:api');
+    }
+    public function date(Request $request)
+    {
+        $date = Carbon::parse($request->date);
+        $dates = Date::where('user_id', auth()->user()->id)->where('date', $date)->with('dates_activities', 'dates_meals', 'meals', 'nutritions', 'activities')->get();
         return $dates;
     }
     public function add_activity($request)
