@@ -32,7 +32,9 @@ return new class extends Migration
         Schema::create('dates', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->decimal('user_weight');
+            $table->decimal('user_weight')->nullable();
+            $table->integer('calories_consumed')->nullable();
+            $table->integer('calories_burned')->nullable();
             $table->date('date');
             $table->timestamps();
             
@@ -60,15 +62,20 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('brand');
+            $table->string('barcode');
             $table->integer('calories_per_gram');
-            $table->string('nutrition_grade');
+            $table->string('nutrition_grade')->nullable();
             $table->timestamps();
         });
 
         Schema::create('nutrients', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('meal_id');
-            //hier moet nog meuk komen
+            $table->decimal('sugar_100g')->nullable();
+            $table->decimal('salt_100g')->nullable();
+            $table->decimal('fat_100g')->nullable();
+            $table->decimal('carbohydrates_100g')->nullable();
+            $table->decimal('proteins_100g')->nullable();
             $table->timestamps();
 
             $table->foreign('meal_id')->references('id')->on('meals');
@@ -78,7 +85,6 @@ return new class extends Migration
             $table->unsignedBigInteger('date_id');
             $table->unsignedBigInteger('meal_id');
             $table->integer('calories_total');
-            $table->integer('grams');
             $table->timestamps();
 
             $table->foreign('date_id')->references('id')->on('dates');

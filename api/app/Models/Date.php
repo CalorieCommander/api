@@ -10,7 +10,7 @@ class Date extends Model
 {
     use HasFactory;
 
-    
+    protected $table = 'dates';
     protected $fillable = [
         'user_id',
         'user_weight',
@@ -23,7 +23,7 @@ class Date extends Model
     {
         return $this->HasMany(Date_meal::class);
     }
-    public function date_activites(): HasMany
+    public function date_activities(): HasMany
     {
         return $this->HasMany(Date_activity::class);
     }

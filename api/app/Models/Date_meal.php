@@ -12,7 +12,7 @@ class Date_meal extends Model
 {
     use HasFactory;
 
-    
+    protected $table = 'dates_meals';
     protected $fillable = [
         'date_id',
         'meal_id',
@@ -22,9 +22,9 @@ class Date_meal extends Model
         'updated_at',
     ];
 
-    public function meals(): HasOne
+    public function meal(): BelongsTo
     {
-        return $this->hasOne(Meal::class);
+        return $this->belongsTo(Meal::class);
     }
     public function date(): BelongsTo
     {

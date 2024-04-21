@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Activity extends Model
 {
     use HasFactory;
-
+    protected $table = 'activities';
     protected $fillable = [
         'name',
         'calories_per_km',

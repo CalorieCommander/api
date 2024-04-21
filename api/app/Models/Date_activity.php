@@ -11,7 +11,7 @@ class Date_activity extends Model
 {
     use HasFactory;
 
-    
+    protected $table = 'dates_activities';
     protected $fillable = [
         'date_id',
         'activity_id',

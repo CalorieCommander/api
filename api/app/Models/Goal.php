@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Goal extends Model
 {
     use HasFactory;
-
+    protected $table = 'goals';
     protected $fillable = [
         'user_id',
         'date',
