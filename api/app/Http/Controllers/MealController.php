@@ -125,10 +125,11 @@ class MealController extends Controller
         $date_meal = Date_meal::where('id', $request->date_meal_id)->first();
         $date = Date::where('id', $date_meal->date_id)->first();
         $date_meal->delete();
+        $date->calories_consumed = Date_meal::where('date_id', $date->id)->sum("calories_total");
+        $date->update();
         if(count(Date_meal::where('date_id', $date->id)->get()) == 0)
         {
             $date->delete();
         }
-        return redirect()->back()->with('success', 'Maaltijd is van datum verwijderd!');
     }
 }

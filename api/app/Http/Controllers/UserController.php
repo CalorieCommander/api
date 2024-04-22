@@ -91,12 +91,19 @@ class UserController extends \Illuminate\Routing\Controller
         }
         if ($request->height == null) {
             $height = ($user->height / 100);
+            $height_cm = $user->height;
         }
         else
         {
             $height = ($request->height / 100);
+            $height_cm = $request->height;
         }
+        $user->gender = $gender;
+        $user->height = $height_cm;
+        $user->weight = $weight;
+        $user->age = $age;
         $user->bmi = $weight / ($height * $height);
+        $user->update();
         $goal = Goal::where('user_id', auth()->user()->id)->first();
         if ($goal == null) {
             $goal = new Goal();
@@ -150,7 +157,6 @@ class UserController extends \Illuminate\Routing\Controller
             $goal->daily_calories = round($tdee - ($calorie_deficit / $days_remaining), 0);
             $goal->update();
         }
-        $user->update();
     }
     public function update_user_password(ChangePasswordRequest $request)
     {
