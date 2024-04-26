@@ -16,14 +16,18 @@ use Illuminate\Support\Str;
 
 class UserController extends \Illuminate\Routing\Controller
 {
+    //API middleware op elke functie in deze controller
+    //Hier vallen login en register niet onder zodat een gebruiker hier wel kan komen zonder ingelogd te zijn
     public function __construct()
     {
         $this->middleware('auth:api', ['except' => ['login', 'register']]);
     }
+    //Functie voor het registeren van een nieuwe gebruiker
     public function register(RegisterRequest $request)
     {
+        //Wachtwoord hashen
         $request['password'] = Hash::make($request['password']);
-        $request['remember_token'] = Str::random(10);
+        //User instantie aanvragen en data invullen
         $user = new User;
         $user->first_name = $request->first_name;
         $user->last_name = $request->last_name;
@@ -33,23 +37,29 @@ class UserController extends \Illuminate\Routing\Controller
 
         return response()->json(['message' => 'Account aangemaakt! Je kan nu inloggen!']);
     }
+    //Functie voor het inloggen van een bestaande gebruiker
     public function login(LoginRequest $request)
     {
+        //Kijken of de ingevoerde gegevens gelijk staan aan de database
         $credentials = request(['email', 'password']);
         if (!$token = auth()->attempt($credentials)) {
+            //Als verificatie faalt wordt er een 401 error gegooid
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-
+        //Als verificatie slaagt wordt er een JWT-token teruggegeven
         return $this->respondWithToken($token);
     }
+    //Functie voor het uitloggen van een ingelogde gebruiker
     public function logout(Request $request)
     {
+        //Doormiddel van de meegegeven token kan Laravel automatisch de gebruiker uitloggen (token invalideren)
         auth()->logout();
-
-        return response()->json(['message' => 'Successfully logged out']);
+        return response()->json(['message' => 'Uitgelogd!']);
     }
+    //Functie voor het genereren van een JWT-token
     protected function respondWithToken($token)
     {
+        //Token wordt gegenereerd door een composer package, dit gebeurd automatisch
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
@@ -57,16 +67,20 @@ class UserController extends \Illuminate\Routing\Controller
             'user' => auth()->user(),
         ]);
     }
+    //Functie voor het teruggeven van de user data van de ingelogde user
     public function user()
     {
+        //Pak ingelogde user data en bijbehorende goal en geef deze terug
         $data = [
             'user' => auth()->user(),
             'goal' => Goal::where('user_id', auth()->user()->id)->first(),
         ];
         return $data;
     }
+    //Functie voor het updaten van een user
     public function update_user_data(Request $request)
     {
+        //Allemaal if == null checks omdat we anders errors krijgen...
         $user = auth()->user();
         if ($request->gender == null) {
             $gender = $user->gender;
@@ -98,21 +112,27 @@ class UserController extends \Illuminate\Routing\Controller
             $height = ($request->height / 100);
             $height_cm = $request->height;
         }
+        //User data invullen
         $user->gender = $gender;
         $user->height = $height_cm;
         $user->weight = $weight;
         $user->age = $age;
         $user->bmi = $weight / ($height * $height);
         $user->update();
+        //Zoeken naar goal van bijbehorende user
         $goal = Goal::where('user_id', auth()->user()->id)->first();
+        //Als goal niet bestaat maken we een nieuwe aan
         if ($goal == null) {
             $goal = new Goal();
             $goal->user_id = auth()->user()->id;
+            //Datum parsen...
             $goal->date = Carbon::parse($request->goal_date);
             $today = now()->startOfDay();
             $target_date = Carbon::parse($request->goal_date)->startOfDay();
+            //Dagen uitrekenen die we nog hebben totdat de doel-datum berijkt is
             $days_remaining = $today->diffInDays($target_date);
             $goal->goal_weight = $request->goal_weight;
+            //bmr uitrekenen voor man of vrouw
             if ($request->gender == "Man") {
                 $bmr = round(66 + (13.7 * $weight) + (5 * $height) - (6.8 * $age), 1);
                 
@@ -120,11 +140,17 @@ class UserController extends \Illuminate\Routing\Controller
             else{
                 $bmr = round(655 + (9.6 * $weight) + (1.8 * $height) - (4.7 * $age), 1);
             }
+            //tdee uitrekenen
             $tdee = $bmr * 1.375;
+            //Uitrekenen hoeveel calorieën we in totaal minder moeten eten
             $calorie_deficit = ($weight - $request->goal_weight) * 7700;
+            //Dagelijkse calorieën uitrekenen om ons doel binnen de gegeven datum te halen
             $goal->daily_calories = round($tdee + ($calorie_deficit / $days_remaining), 0);
             $goal->save();
-        } else {
+        }
+        //Hetzelfde riedeltje maar dan voor wanneer $goal wel bestaat 
+        else {
+            //Meer if == null checks om errors te voorkomen
             if ($request->goal_date == null) {
                 $goal_date = $goal->goal_date;
             }
@@ -139,7 +165,6 @@ class UserController extends \Illuminate\Routing\Controller
             {
                 $goal_weight = $request->goal_weight;
             }
-            $goal->date = Carbon::parse($goal_date);
             $goal->date = Carbon::parse($goal_date);
             $today = now()->startOfDay();
             $target_date = Carbon::parse($request->goal_date)->startOfDay();
@@ -157,33 +182,18 @@ class UserController extends \Illuminate\Routing\Controller
             $goal->daily_calories = round($tdee - ($calorie_deficit / $days_remaining), 0);
             $goal->update();
         }
+        return response()->json(['message' => 'User data geüpdate!']);
     }
+    //Functie voor het updaten van het wachtwoord van de gebruiker
     public function update_user_password(ChangePasswordRequest $request)
     {
+        //Pak gebruiker
         $user = auth()->user();
-        if ($request->password !== $request->password_confirmation) {
-            return response()->json(['error' => 'Passwords do not match.'], 401);
-        }
+        //Gebruiker uitloggen (gebruiker wordt gevraagd om opnieuw in te loggen als wachtwoord veranderd)
         auth()->logout();
         $user->password = Hash::make($request->password);
         $user->update();
-        return response()->json(['message' => 'Successfully updated password. Please login again.', 'user' => $user]);
-    }
-    public function add_admin(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'is_admin' => 'required',
-            'user_id' => 'required|exists:users,id',
-        ]);
-        if ($validator->fails()) {
-            return response(['errors' => $validator->errors()->all()], 422);
-        }
-        if (auth()->user()->is_admin !== 1) {
-
-        }
-        $user = User::where('id', $request->user_id)->first();
-        $user->is_admin = $request->is_admin;
-        $user->update();
-        return response()->json(['message' => 'Succesfully updated admin permissions.', 'user' => $user]);
+        //Geef bevestiging en user data terug
+        return response()->json(['message' => 'Wachtwoord geüpdate. Log alstublieft opnieuw in.', 'user' => $user]);
     }
 }
